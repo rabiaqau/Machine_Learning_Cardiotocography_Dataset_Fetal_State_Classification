@@ -3,7 +3,7 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-model = joblib.load("/Users/rabiashaheen/Desktop/ml_project/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/rf_best_model.pkl")
+model = joblib.load("rf_best_model.pkl")
 
 feature_names = [
     'LB','AC','FM','UC','DL','DS','DP',
