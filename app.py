@@ -6,17 +6,19 @@ import pandas as pd
 # PAGE CONFIG
 # =========================
 st.set_page_config(
-    page_title="AI Mother & Baby Risk Dashboard",
+    page_title="AI Mother & Baby Risk System",
     page_icon="🧠",
     layout="wide"
 )
 
 # =========================
-# BACKGROUND IMAGE + STYLE
+# CLEAN GLASS UI + BACKGROUND FIX
 # =========================
 st.markdown(
     """
     <style>
+
+    /* Background image */
     .stApp {
         background-image: url("https://images.unsplash.com/photo-1584515933487-779824d29309");
         background-size: cover;
@@ -24,6 +26,7 @@ st.markdown(
         background-attachment: fixed;
     }
 
+    /* Dark overlay for contrast */
     .stApp::before {
         content: "";
         position: absolute;
@@ -31,23 +34,50 @@ st.markdown(
         left: 0;
         height: 100%;
         width: 100%;
-        background: rgba(0, 0, 0, 0.60);
+        background: rgba(0, 0, 0, 0.45);
         z-index: 0;
     }
 
+    /* Main container */
     .main {
         position: relative;
         z-index: 1;
-        color: white;
     }
 
+    /* Glass card */
+    .block-container {
+        background: rgba(255, 255, 255, 0.92);
+        padding: 2rem;
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
+
+    /* Titles */
+    h1, h2, h3 {
+        color: #1f2a44 !important;
+        font-family: "Arial", sans-serif;
+    }
+
+    /* Text */
+    p, label, div {
+        color: #2c3e50 !important;
+        font-size: 15px;
+    }
+
+    /* Buttons */
     .stButton>button {
-        background-color: #4CAF50;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
         color: white;
-        border-radius: 10px;
+        border-radius: 12px;
         height: 3em;
         width: 100%;
         font-size: 16px;
+        border: none;
+    }
+
+    .stButton>button:hover {
+        transform: scale(1.02);
     }
 
     </style>
@@ -59,7 +89,7 @@ st.markdown(
 # HEADER
 # =========================
 st.title("🧠 AI Mother & Baby Risk Prediction System")
-st.markdown("Multi-model clinical decision support dashboard")
+st.markdown("Multi-model clinical decision support dashboard with AI comparison")
 
 st.markdown("---")
 
@@ -102,22 +132,18 @@ mode = st.radio(
 st.markdown("---")
 
 # =========================
-# SELECT FEATURES BASED ON MODE
+# INPUT FEATURES
 # =========================
 if mode == "⚡ Quick Analysis":
     selected_features = top_features
-    st.info(f"Using key features: {selected_features}")
+    st.info(f"Using important features: {selected_features}")
 else:
     selected_features = feature_names
-    st.warning("Using full clinical feature set")
+    st.warning("Using full clinical dataset")
 
-# =========================
-# INPUT SECTION
-# =========================
 st.subheader("📥 Patient Input")
 
 input_data = {}
-
 cols = st.columns(3)
 
 for i, feature in enumerate(selected_features):
@@ -145,23 +171,23 @@ if st.button("🚀 Predict Risk Level"):
     # =========================
     col1, col2, col3 = st.columns(3)
 
-    def show_result(name, value, col):
+    def show(name, val, col):
         with col:
-            if value == 1:
-                st.success(f"{name} → Normal 🟢")
-            elif value == 2:
-                st.warning(f"{name} → Suspicious 🟡")
+            if val == 1:
+                st.success(f"{name}\n🟢 Normal")
+            elif val == 2:
+                st.warning(f"{name}\n🟡 Suspicious")
             else:
-                st.error(f"{name} → Pathological 🔴")
+                st.error(f"{name}\n🔴 Pathological")
 
-    show_result("Logistic Regression", results["Logistic Regression"], col1)
-    show_result("Random Forest", results["Random Forest"], col2)
-    show_result("SVM", results["SVM"], col3)
+    show("Logistic Regression", results["Logistic Regression"], col1)
+    show("Random Forest", results["Random Forest"], col2)
+    show("SVM", results["SVM"], col3)
 
     st.markdown("---")
 
     # =========================
-    # TABLE
+    # SUMMARY TABLE
     # =========================
     st.subheader("📋 Prediction Summary")
 
@@ -174,21 +200,20 @@ if st.button("🚀 Predict Risk Level"):
     if len(set(results.values())) == 1:
         st.success("✅ All models agree on diagnosis")
     else:
-        st.warning("⚠ Models disagree — further review needed")
+        st.warning("⚠ Model disagreement detected")
 
     st.markdown("---")
 
     # =========================
     # VISUALIZATION
     # =========================
-    st.subheader("📊 Model Comparison Chart")
+    st.subheader("📊 Model Comparison")
 
     st.bar_chart(df_results.T)
 
     # =========================
-    # FEATURE INSIGHT (QUICK MODE ONLY)
+    # FEATURE INSIGHT (ONLY QUICK MODE)
     # =========================
     if mode == "⚡ Quick Analysis":
-        st.subheader("🧠 Key Feature Importance")
-
+        st.subheader("🧠 Feature Importance (Top Factors)")
         st.write(feature_importance.sort_values(ascending=False))
