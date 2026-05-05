@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 import pandas as pd
+import numpy as np
 
 # =========================
 # PAGE CONFIG
@@ -11,9 +12,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# =========================
-# PROFESSIONAL BACKGROUND + THEME
-# =========================
 st.markdown(
     """
     <style>
@@ -43,9 +41,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# =========================
-# HEADER
-# =========================
 st.title("🧠 AI Mother & Baby Risk Prediction System")
 st.markdown("Clinical decision support using multiple ML models")
 st.markdown("---")
@@ -62,7 +57,7 @@ models = {
 rf_model = models["Random Forest"]
 
 # =========================
-# ALL FEATURES (must always match training)
+# FEATURES
 # =========================
 feature_names = [
     'LB', 'AC', 'FM', 'UC', 'DL', 'DS', 'DP',
@@ -89,19 +84,20 @@ else:
     st.warning("Full diagnostic feature set enabled")
 
 # =========================
-# INPUT — only show selected features, default rest to 0.0
+# INPUT
 # =========================
 st.subheader("📥 Patient Input")
 
-input_data = {feat: 0.0 for feat in feature_names}  # ← default ALL to 0.0
+# Pre-fill ALL 21 features as Python floats
+input_data = {feat: 0.0 for feat in feature_names}
 
 cols = st.columns(3)
 for i, feature in enumerate(displayed_features):
     with cols[i % 3]:
-        input_data[feature] = st.number_input(feature, value=0.0)
+        input_data[feature] = float(st.number_input(feature, value=0.0))
 
-# Always pass ALL 21 features in the correct order
-input_df = pd.DataFrame([input_data])[feature_names]
+# Build DataFrame with all 21 features, explicitly cast to float64
+input_df = pd.DataFrame([input_data], columns=feature_names).astype(np.float64)
 
 st.markdown("---")
 
@@ -111,8 +107,19 @@ st.markdown("---")
 if st.button("🚀 Run Risk Prediction"):
 
     results = {}
+    errors = {}
+
     for name, model in models.items():
-        results[name] = model.predict(input_df)[0]
+        try:
+            results[name] = int(model.predict(input_df)[0])
+        except Exception as e:
+            errors[name] = str(e)
+
+    if errors:
+        st.error("⚠️ Prediction errors occurred:")
+        for model_name, err in errors.items():
+            st.code(f"{model_name}: {err}")
+        st.stop()
 
     st.subheader("📊 Model Outputs")
     col1, col2, col3 = st.columns(3)
@@ -139,7 +146,7 @@ if st.button("🚀 Run Risk Prediction"):
     if len(set(results.values())) == 1:
         st.success("✅ All models agree on prediction")
     else:
-        st.warning("⚠️ Model disagreement detected")
+        st.warning("⚠️ Model disagreement detected — review outputs carefully")
 
     st.bar_chart(df_results.T)
 
