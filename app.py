@@ -3,7 +3,16 @@ import joblib
 import pandas as pd
 
 # =========================
-# Load trained models
+# PAGE CONFIG
+# =========================
+st.set_page_config(
+    page_title="AI Patient Risk Dashboard",
+    page_icon="🧠",
+    layout="wide"
+)
+
+# =========================
+# LOAD MODELS
 # =========================
 models = {
     "Logistic Regression": joblib.load("linreg_best_model.pkl"),
@@ -11,8 +20,10 @@ models = {
     "SVM": joblib.load("svm_best_model.pkl")
 }
 
+rf_model = models["Random Forest"]
+
 # =========================
-# Feature names
+# FULL FEATURE SET
 # =========================
 feature_names = [
     'LB','AC','FM','UC','DL','DS','DP',
@@ -22,15 +33,43 @@ feature_names = [
 ]
 
 # =========================
-# UI Header
+# FEATURE IMPORTANCE (TOP FEATURES)
 # =========================
-st.set_page_config(page_title="ML Model Comparison", layout="wide")
-
-st.title("🧠 Cardiotocography Prediction Dashboard")
-st.markdown("Compare predictions from multiple ML models in real-time.")
+importances = rf_model.named_steps["model"].feature_importances_
+feature_importance = pd.Series(importances, index=feature_names)
+top_features = feature_importance.sort_values(ascending=False).head(7).index.tolist()
 
 # =========================
-# Input Section
+# UI HEADER
+# =========================
+st.title("🧠 AI Patient Risk Prediction System")
+st.markdown("Choose analysis type and compare multiple ML models")
+
+st.markdown("---")
+
+# =========================
+# MODE SELECTION
+# =========================
+mode = st.radio(
+    "Select Analysis Mode",
+    ["⚡ Quick Analysis", "📊 Detailed Analysis"]
+)
+
+st.markdown("---")
+
+# =========================
+# FEATURE SELECTION BASED ON MODE
+# =========================
+if mode == "⚡ Quick Analysis":
+    selected_features = top_features
+    st.info(f"Using top important features: {selected_features}")
+
+else:
+    selected_features = feature_names
+    st.warning("Using full feature set for detailed analysis")
+
+# =========================
+# INPUT SECTION
 # =========================
 st.subheader("📥 Enter Patient Data")
 
@@ -38,16 +77,18 @@ input_data = {}
 
 cols = st.columns(3)
 
-for i, feature in enumerate(feature_names):
+for i, feature in enumerate(selected_features):
     with cols[i % 3]:
         input_data[feature] = st.number_input(feature, value=0.0)
 
-input_df = pd.DataFrame([input_data])[feature_names]
+input_df = pd.DataFrame([input_data])
+
+st.markdown("---")
 
 # =========================
-# Prediction Section
+# PREDICTION
 # =========================
-if st.button("🚀 Predict with All Models"):
+if st.button("🚀 Predict Patient Risk"):
 
     st.subheader("📊 Model Predictions")
 
@@ -57,30 +98,55 @@ if st.button("🚀 Predict with All Models"):
         pred = model.predict(input_df)[0]
         results[name] = pred
 
-    # Display in columns (fancy layout)
+    # =========================
+    # DISPLAY RESULTS
+    # =========================
     col1, col2, col3 = st.columns(3)
 
-    with col1:
-        st.metric("Logistic Regression", results["Logistic Regression"])
+    def show_card(title, value, col):
+        with col:
+            if value == 1:
+                st.success(f"{title} → Normal 🟢")
+            elif value == 2:
+                st.warning(f"{title} → Suspicious 🟡")
+            else:
+                st.error(f"{title} → Pathological 🔴")
 
-    with col2:
-        st.metric("Random Forest", results["Random Forest"])
+    show_card("Logistic Regression", results["Logistic Regression"], col1)
+    show_card("Random Forest", results["Random Forest"], col2)
+    show_card("SVM", results["SVM"], col3)
 
-    with col3:
-        st.metric("SVM", results["SVM"])
-
-    # =========================
-    # Summary Table
-    # =========================
-    st.subheader("📋 Comparison Table")
-
-    result_df = pd.DataFrame([results])
-    st.dataframe(result_df)
+    st.markdown("---")
 
     # =========================
-    # Agreement Check
+    # SUMMARY TABLE
+    # =========================
+    st.subheader("📋 Prediction Summary")
+
+    df_results = pd.DataFrame([results])
+    st.dataframe(df_results)
+
+    # =========================
+    # AGREEMENT CHECK
     # =========================
     if len(set(results.values())) == 1:
-        st.success("✅ All models agree on the prediction!")
+        st.success("✅ All models agree on diagnosis")
     else:
-        st.warning("⚠ Models disagree — check uncertainty in data.")
+        st.warning("⚠ Models disagree → review patient risk carefully")
+
+    st.markdown("---")
+
+    # =========================
+    # VISUALIZATION
+    # =========================
+    st.subheader("📊 Model Comparison")
+
+    st.bar_chart(df_results.T)
+
+    # =========================
+    # FEATURE INFO (ONLY FOR QUICK MODE)
+    # =========================
+    if mode == "⚡ Quick Analysis":
+        st.subheader("🧠 Feature Importance Insight")
+
+        st.write(feature_importance.sort_values(ascending=False))
