@@ -15,42 +15,71 @@ st.set_page_config(
 # PROFESSIONAL BACKGROUND + THEME
 # =========================
 
-
-
 st.markdown(
     """
     <style>
 
-    /* GLOBAL TEXT COLOR */
+    /* =========================
+       BACKGROUND + OVERLAY
+    ========================= */
     .stApp {
-        color: #f8fafc;
-    }
+        background: linear-gradient(
+            rgba(0,0,0,0.55),
+            rgba(0,0,0,0.55)
+        ),
+        url("https://raw.githubusercontent.com/rabiaqau/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/main/mother_baby_image.png");
 
-    /* Markdown text */
-    .stMarkdown, p, label, div {
-        color: #f8fafc !important;
-    }
-
-    /* Headings */
-    h1, h2, h3, h4 {
-        color: #ffffff !important;
-    }
-
-    </style>
-    """,
-    
-    """
-    <style>
-    .stApp {
-        background-image: url("https://raw.githubusercontent.com/rabiaqau/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/main/mother_baby_image.png");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
     }
+
+    /* =========================
+       GLOBAL TEXT COLORS
+    ========================= */
+    .stApp {
+        color: #e2e8f0;
+    }
+
+    p, label, div, span {
+        color: #e2e8f0 !important;
+    }
+
+    /* HEADINGS */
+    h1, h2, h3, h4 {
+        color: #ffffff !important;
+        font-weight: 700;
+    }
+
+    /* =========================
+       BUTTON STYLE
+    ========================= */
+    .stButton > button {
+        background-color: #2563eb;
+        color: white;
+        border-radius: 8px;
+        height: 3em;
+        width: 100%;
+        font-weight: 600;
+        border: none;
+    }
+
+    .stButton > button:hover {
+        background-color: #1d4ed8;
+    }
+
+    /* =========================
+       INPUT FIELDS
+    ========================= */
+    input {
+        border-radius: 6px !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 # =========================
 # HEADER
