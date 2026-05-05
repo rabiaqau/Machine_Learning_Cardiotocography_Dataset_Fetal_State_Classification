@@ -20,7 +20,7 @@ st.markdown(
 
     /* FULL BACKGROUND IMAGE FIX */
     [data-testid="stAppViewContainer"] {
-        background: url("https://agatabrannonphotography.com/mom-and-baby-session-with-liam-15-days-new/");
+        background: url("https://raw.githubusercontent.com/rabiaqau/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/main/mother_baby_image.png");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
