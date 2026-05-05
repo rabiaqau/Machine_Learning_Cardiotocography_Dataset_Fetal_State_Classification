@@ -12,95 +12,100 @@ st.set_page_config(
 )
 
 # =========================
-# FIXED BACKGROUND (IMPORTANT)
+# PROFESSIONAL BACKGROUND + THEME
 # =========================
 st.markdown(
     """
     <style>
 
     /* =========================
-       FIX BACKGROUND PROPERLY
+       BACKGROUND IMAGE (FIXED)
     ========================= */
     [data-testid="stAppViewContainer"] {
         position: relative;
         background: url("https://raw.githubusercontent.com/rabiaqau/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/main/mother_baby_image.png");
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
-        filter: brightness(0.75) contrast(1.2) saturate(1.1);
+        background-attachment: fixed;
     }
 
-    /* FORCE DARK OVERLAY ON WHOLE APP */
-    [data-testid="stAppViewContainer"]::after {
+    /* DARK OVERLAY (CLEAN & PROFESSIONAL) */
+    [data-testid="stAppViewContainer"]::before {
         content: "";
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.55);
+        inset: 0;
+        background: rgba(10, 15, 25, 0.65);
         z-index: 0;
-        pointer-events: none;
     }
 
-    /* MAKE CONTENT ABOVE OVERLAY */
+    /* KEEP CONTENT ABOVE */
     .main {
         position: relative;
         z-index: 2;
     }
 
     /* =========================
-       GLASS UI CARD
+       GLASS CARD UI (MAIN CONTAINER)
     ========================= */
     .block-container {
-        background: rgba(255, 255, 255, 0.93);
-        border-radius: 20px;
-        padding: 2rem;
-        backdrop-filter: blur(14px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 18px;
+        padding: 2rem 2rem;
+        box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+        backdrop-filter: blur(12px);
     }
 
     /* =========================
-       TEXT FIX
+       TYPOGRAPHY
     ========================= */
     h1, h2, h3 {
-        color: #1b2a41 !important;
+        color: #0f172a !important;
+        font-weight: 700;
     }
 
     p, label, div {
-        color: #2c3e50 !important;
+        color: #1f2937 !important;
+        font-size: 15px;
     }
 
     /* =========================
-       BUTTON FIX (STRONG CTA)
+       BUTTONS (MEDICAL / TRUST STYLE)
     ========================= */
     .stButton>button {
-        background: linear-gradient(135deg, #ff512f, #dd2476);
+        background: linear-gradient(135deg, #0ea5e9, #2563eb);
         color: white;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 600;
-        border-radius: 14px;
-        height: 3.2em;
+        border-radius: 12px;
+        height: 3em;
         width: 100%;
         border: none;
-        box-shadow: 0 6px 18px rgba(221, 36, 118, 0.4);
-        transition: all 0.3s ease;
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+        transition: all 0.25s ease-in-out;
     }
 
     .stButton>button:hover {
-        transform: scale(1.04);
-        box-shadow: 0 10px 25px rgba(221, 36, 118, 0.6);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+    }
+
+    /* =========================
+       INPUT FIELDS
+    ========================= */
+    input {
+        border-radius: 10px !important;
     }
 
     </style>
     """,
     unsafe_allow_html=True
 )
+
 # =========================
 # HEADER
 # =========================
 st.title("🧠 AI Mother & Baby Risk Prediction System")
-st.markdown("Multi-model comparison dashboard for clinical decision support")
+st.markdown("Clinical decision support using multiple ML models")
 
 st.markdown("---")
 
@@ -125,33 +130,27 @@ feature_names = [
     'Mode','Mean','Median','Variance','Tendency'
 ]
 
-# =========================
-# FEATURE IMPORTANCE
-# =========================
 importances = rf_model.named_steps["model"].feature_importances_
 feature_importance = pd.Series(importances, index=feature_names)
 top_features = feature_importance.sort_values(ascending=False).head(7).index.tolist()
 
 # =========================
-# MODE SELECTION
+# MODE
 # =========================
-mode = st.radio(
-    "Select Analysis Mode",
-    ["⚡ Quick Analysis", "📊 Detailed Analysis"]
-)
+mode = st.radio("Select Analysis Mode", ["⚡ Quick Analysis", "📊 Detailed Analysis"])
 
 st.markdown("---")
 
-# =========================
-# INPUT FIELDS
-# =========================
 if mode == "⚡ Quick Analysis":
     selected_features = top_features
-    st.info(f"Using key features: {selected_features}")
+    st.info(f"Using key clinical indicators: {selected_features}")
 else:
     selected_features = feature_names
-    st.warning("Using full feature set")
+    st.warning("Full diagnostic feature set enabled")
 
+# =========================
+# INPUT
+# =========================
 st.subheader("📥 Patient Input")
 
 input_data = {}
@@ -168,25 +167,25 @@ st.markdown("---")
 # =========================
 # PREDICTION
 # =========================
-if st.button("🚀 Predict Risk"):
+if st.button("🚀 Run Risk Prediction"):
 
     results = {}
 
     for name, model in models.items():
         results[name] = model.predict(input_df)[0]
 
-    st.subheader("📊 Model Predictions")
+    st.subheader("📊 Model Outputs")
 
     col1, col2, col3 = st.columns(3)
 
     def show(name, val, col):
         with col:
             if val == 1:
-                st.success(f"{name} → Normal 🟢")
+                st.success(f"{name}\nNormal 🟢")
             elif val == 2:
-                st.warning(f"{name} → Suspicious 🟡")
+                st.warning(f"{name}\nSuspicious 🟡")
             else:
-                st.error(f"{name} → Pathological 🔴")
+                st.error(f"{name}\nPathological 🔴")
 
     show("Logistic Regression", results["Logistic Regression"], col1)
     show("Random Forest", results["Random Forest"], col2)
@@ -194,19 +193,14 @@ if st.button("🚀 Predict Risk"):
 
     st.markdown("---")
 
-    st.subheader("📋 Summary Table")
-
+    st.subheader("📋 Summary")
     df_results = pd.DataFrame([results])
     st.dataframe(df_results, use_container_width=True)
 
     if len(set(results.values())) == 1:
-        st.success("✅ All models agree")
+        st.success("All models agree on prediction")
     else:
-        st.warning("⚠ Model disagreement detected")
-
-    st.markdown("---")
-
-    st.subheader("📊 Comparison")
+        st.warning("Model disagreement detected")
 
     st.bar_chart(df_results.T)
 
