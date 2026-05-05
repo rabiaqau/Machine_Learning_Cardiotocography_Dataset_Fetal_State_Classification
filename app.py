@@ -15,7 +15,7 @@ st.set_page_config(
 # ── Load model (cached so it only loads once) ──────────────────────────────────
 @st.cache_resource
 def load_model():
-    return joblib.load("rf_best_model_quick.pkl")
+    return joblib.load("rf_best_model.pkl")
 
 model = load_model()
 
