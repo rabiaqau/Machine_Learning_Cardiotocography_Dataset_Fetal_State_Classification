@@ -20,6 +20,27 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+
+    /* GLOBAL TEXT COLOR */
+    .stApp {
+        color: #f8fafc;
+    }
+
+    /* Markdown text */
+    .stMarkdown, p, label, div {
+        color: #f8fafc !important;
+    }
+
+    /* Headings */
+    h1, h2, h3, h4 {
+        color: #ffffff !important;
+    }
+
+    </style>
+    """,
+    
+    """
+    <style>
     .stApp {
         background-image: url("https://raw.githubusercontent.com/rabiaqau/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/main/mother_baby_image.png");
         background-size: cover;
