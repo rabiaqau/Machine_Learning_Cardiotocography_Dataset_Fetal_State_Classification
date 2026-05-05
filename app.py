@@ -18,7 +18,9 @@ st.markdown(
     """
     <style>
 
-    /* FULL BACKGROUND IMAGE FIX */
+    /* =========================
+       BACKGROUND IMAGE (STRONGER + BRIGHTER)
+    ========================= */
     [data-testid="stAppViewContainer"] {
         background: url("https://raw.githubusercontent.com/rabiaqau/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/main/mother_baby_image.png");
         background-size: cover;
@@ -27,34 +29,38 @@ st.markdown(
         background-attachment: fixed;
     }
 
-    /* DARK OVERLAY (keeps readability but DOES NOT hide image) */
+    /* STRONG DARK OVERLAY (improves contrast) */
     [data-testid="stAppViewContainer"]::before {
         content: "";
         position: absolute;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.35);
+        background: rgba(0, 0, 0, 0.55);  /* darker = better readability */
         top: 0;
         left: 0;
         z-index: 0;
     }
 
-    /* MAIN CONTENT ABOVE BACKGROUND */
+    /* keep content above background */
     .main {
         position: relative;
         z-index: 1;
     }
 
-    /* GLASS CARD EFFECT */
+    /* =========================
+       GLASS CARD UI
+    ========================= */
     .block-container {
-        background: rgba(255, 255, 255, 0.90);
-        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 20px;
         padding: 2rem;
-        backdrop-filter: blur(10px);
-        box-shadow: 0px 10px 30px rgba(0,0,0,0.25);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
-    /* TEXT COLORS */
+    /* =========================
+       TEXT STYLE
+    ========================= */
     h1, h2, h3 {
         color: #1f2a44 !important;
     }
@@ -63,13 +69,26 @@ st.markdown(
         color: #2c3e50 !important;
     }
 
-    /* BUTTONS */
+    /* =========================
+       🚀 BEAUTIFUL BUTTON STYLE (FIXED)
+    ========================= */
     .stButton>button {
-        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        background: linear-gradient(135deg, #ff416c, #ff4b2b);
         color: white;
-        border-radius: 12px;
-        height: 3em;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 14px;
+        height: 3.2em;
         width: 100%;
+        border: none;
+        box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .stButton>button:hover {
+        transform: scale(1.03);
+        box-shadow: 0 8px 20px rgba(255, 75, 43, 0.6);
+        background: linear-gradient(135deg, #ff4b2b, #ff416c);
     }
 
     </style>
