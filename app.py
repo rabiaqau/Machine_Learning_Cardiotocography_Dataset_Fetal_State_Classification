@@ -14,88 +14,18 @@ st.set_page_config(
 # =========================
 # PROFESSIONAL BACKGROUND + THEME
 # =========================
-st.markdown(
+
+
+
+  st.markdown(
     """
     <style>
-
-    /* =========================
-       BACKGROUND IMAGE (FIXED)
-    ========================= */
-    [data-testid="stAppViewContainer"] {
-        position: relative;
-        background: url("https://raw.githubusercontent.com/rabiaqau/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/main/mother_baby_image.png");
+    .stApp {
+        background-image: url("https://raw.githubusercontent.com/rabiaqau/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/main/mother_baby_image.png");
         background-size: cover;
         background-position: center;
-        background-attachment: fixed;
+        background-repeat: no-repeat;
     }
-
-    /* DARK OVERLAY (CLEAN & PROFESSIONAL) */
-    [data-testid="stAppViewContainer"]::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        background: rgba(10, 15, 25, 0.65);
-        z-index: 0;
-    }
-
-    /* KEEP CONTENT ABOVE */
-    .main {
-        position: relative;
-        z-index: 2;
-    }
-
-    /* =========================
-       GLASS CARD UI (MAIN CONTAINER)
-    ========================= */
-    .block-container {
-        background: rgba(255, 255, 255, 0.92);
-        border-radius: 18px;
-        padding: 2rem 2rem;
-        box-shadow: 0 12px 35px rgba(0,0,0,0.25);
-        backdrop-filter: blur(12px);
-    }
-
-    /* =========================
-       TYPOGRAPHY
-    ========================= */
-    h1, h2, h3 {
-        color: #0f172a !important;
-        font-weight: 700;
-    }
-
-    p, label, div {
-        color: #1f2937 !important;
-        font-size: 15px;
-    }
-
-    /* =========================
-       BUTTONS (MEDICAL / TRUST STYLE)
-    ========================= */
-    .stButton>button {
-        background: linear-gradient(135deg, #0ea5e9, #2563eb);
-        color: white;
-        font-size: 16px;
-        font-weight: 600;
-        border-radius: 12px;
-        height: 3em;
-        width: 100%;
-        border: none;
-        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
-        transition: all 0.25s ease-in-out;
-    }
-
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
-    }
-
-    /* =========================
-       INPUT FIELDS
-    ========================= */
-    input {
-        border-radius: 10px !important;
-    }
-
     </style>
     """,
     unsafe_allow_html=True
