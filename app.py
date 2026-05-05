@@ -19,50 +19,52 @@ st.markdown(
     <style>
 
     /* =========================
-       BACKGROUND IMAGE (STRONGER + BRIGHTER)
+       FIX BACKGROUND PROPERLY
     ========================= */
     [data-testid="stAppViewContainer"] {
+        position: relative;
         background: url("https://raw.githubusercontent.com/rabiaqau/Machine_Learning_Cardiotocography_Dataset_Fetal_State_Classification/main/mother_baby_image.png");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        background-attachment: fixed;
+        filter: brightness(0.75) contrast(1.2) saturate(1.1);
     }
 
-    /* STRONG DARK OVERLAY (improves contrast) */
-    [data-testid="stAppViewContainer"]::before {
+    /* FORCE DARK OVERLAY ON WHOLE APP */
+    [data-testid="stAppViewContainer"]::after {
         content: "";
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.55);  /* darker = better readability */
+        position: fixed;
         top: 0;
         left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.55);
         z-index: 0;
+        pointer-events: none;
     }
 
-    /* keep content above background */
+    /* MAKE CONTENT ABOVE OVERLAY */
     .main {
         position: relative;
-        z-index: 1;
+        z-index: 2;
     }
 
     /* =========================
-       GLASS CARD UI
+       GLASS UI CARD
     ========================= */
     .block-container {
-        background: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.93);
         border-radius: 20px;
         padding: 2rem;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
     }
 
     /* =========================
-       TEXT STYLE
+       TEXT FIX
     ========================= */
     h1, h2, h3 {
-        color: #1f2a44 !important;
+        color: #1b2a41 !important;
     }
 
     p, label, div {
@@ -70,32 +72,30 @@ st.markdown(
     }
 
     /* =========================
-       🚀 BEAUTIFUL BUTTON STYLE (FIXED)
+       BUTTON FIX (STRONG CTA)
     ========================= */
     .stButton>button {
-        background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        background: linear-gradient(135deg, #ff512f, #dd2476);
         color: white;
         font-size: 18px;
-        font-weight: bold;
+        font-weight: 600;
         border-radius: 14px;
         height: 3.2em;
         width: 100%;
         border: none;
-        box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4);
+        box-shadow: 0 6px 18px rgba(221, 36, 118, 0.4);
         transition: all 0.3s ease;
     }
 
     .stButton>button:hover {
-        transform: scale(1.03);
-        box-shadow: 0 8px 20px rgba(255, 75, 43, 0.6);
-        background: linear-gradient(135deg, #ff4b2b, #ff416c);
+        transform: scale(1.04);
+        box-shadow: 0 10px 25px rgba(221, 36, 118, 0.6);
     }
 
     </style>
     """,
     unsafe_allow_html=True
 )
-
 # =========================
 # HEADER
 # =========================
