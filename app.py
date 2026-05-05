@@ -12,72 +12,64 @@ st.set_page_config(
 )
 
 # =========================
-# CLEAN GLASS UI + BACKGROUND FIX
+# FIXED BACKGROUND (IMPORTANT)
 # =========================
 st.markdown(
     """
     <style>
 
-    /* Background image */
-    .stApp {
-        background-image: url("https://images.unsplash.com/photo-1584515933487-779824d29309");
+    /* FULL BACKGROUND IMAGE FIX */
+    [data-testid="stAppViewContainer"] {
+        background: url("https://images.unsplash.com/photo-1584515933487-779824d29309");
         background-size: cover;
         background-position: center;
+        background-repeat: no-repeat;
         background-attachment: fixed;
     }
 
-    /* Dark overlay for contrast */
-    .stApp::before {
+    /* DARK OVERLAY (keeps readability but DOES NOT hide image) */
+    [data-testid="stAppViewContainer"]::before {
         content: "";
         position: absolute;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.35);
         top: 0;
         left: 0;
-        height: 100%;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.45);
         z-index: 0;
     }
 
-    /* Main container */
+    /* MAIN CONTENT ABOVE BACKGROUND */
     .main {
         position: relative;
         z-index: 1;
     }
 
-    /* Glass card */
+    /* GLASS CARD EFFECT */
     .block-container {
-        background: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.90);
+        border-radius: 18px;
         padding: 2rem;
-        border-radius: 20px;
-        backdrop-filter: blur(15px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+        backdrop-filter: blur(10px);
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.25);
     }
 
-    /* Titles */
+    /* TEXT COLORS */
     h1, h2, h3 {
         color: #1f2a44 !important;
-        font-family: "Arial", sans-serif;
     }
 
-    /* Text */
     p, label, div {
         color: #2c3e50 !important;
-        font-size: 15px;
     }
 
-    /* Buttons */
+    /* BUTTONS */
     .stButton>button {
         background: linear-gradient(135deg, #6a11cb, #2575fc);
         color: white;
         border-radius: 12px;
         height: 3em;
         width: 100%;
-        font-size: 16px;
-        border: none;
-    }
-
-    .stButton>button:hover {
-        transform: scale(1.02);
     }
 
     </style>
@@ -89,7 +81,7 @@ st.markdown(
 # HEADER
 # =========================
 st.title("🧠 AI Mother & Baby Risk Prediction System")
-st.markdown("Multi-model clinical decision support dashboard with AI comparison")
+st.markdown("Multi-model comparison dashboard for clinical decision support")
 
 st.markdown("---")
 
@@ -115,7 +107,7 @@ feature_names = [
 ]
 
 # =========================
-# FEATURE IMPORTANCE (TOP FEATURES)
+# FEATURE IMPORTANCE
 # =========================
 importances = rf_model.named_steps["model"].feature_importances_
 feature_importance = pd.Series(importances, index=feature_names)
@@ -132,14 +124,14 @@ mode = st.radio(
 st.markdown("---")
 
 # =========================
-# INPUT FEATURES
+# INPUT FIELDS
 # =========================
 if mode == "⚡ Quick Analysis":
     selected_features = top_features
-    st.info(f"Using important features: {selected_features}")
+    st.info(f"Using key features: {selected_features}")
 else:
     selected_features = feature_names
-    st.warning("Using full clinical dataset")
+    st.warning("Using full feature set")
 
 st.subheader("📥 Patient Input")
 
@@ -157,28 +149,25 @@ st.markdown("---")
 # =========================
 # PREDICTION
 # =========================
-if st.button("🚀 Predict Risk Level"):
-
-    st.subheader("📊 Model Predictions")
+if st.button("🚀 Predict Risk"):
 
     results = {}
 
     for name, model in models.items():
         results[name] = model.predict(input_df)[0]
 
-    # =========================
-    # DISPLAY RESULTS
-    # =========================
+    st.subheader("📊 Model Predictions")
+
     col1, col2, col3 = st.columns(3)
 
     def show(name, val, col):
         with col:
             if val == 1:
-                st.success(f"{name}\n🟢 Normal")
+                st.success(f"{name} → Normal 🟢")
             elif val == 2:
-                st.warning(f"{name}\n🟡 Suspicious")
+                st.warning(f"{name} → Suspicious 🟡")
             else:
-                st.error(f"{name}\n🔴 Pathological")
+                st.error(f"{name} → Pathological 🔴")
 
     show("Logistic Regression", results["Logistic Regression"], col1)
     show("Random Forest", results["Random Forest"], col2)
@@ -186,34 +175,22 @@ if st.button("🚀 Predict Risk Level"):
 
     st.markdown("---")
 
-    # =========================
-    # SUMMARY TABLE
-    # =========================
-    st.subheader("📋 Prediction Summary")
+    st.subheader("📋 Summary Table")
 
     df_results = pd.DataFrame([results])
     st.dataframe(df_results, use_container_width=True)
 
-    # =========================
-    # AGREEMENT CHECK
-    # =========================
     if len(set(results.values())) == 1:
-        st.success("✅ All models agree on diagnosis")
+        st.success("✅ All models agree")
     else:
         st.warning("⚠ Model disagreement detected")
 
     st.markdown("---")
 
-    # =========================
-    # VISUALIZATION
-    # =========================
-    st.subheader("📊 Model Comparison")
+    st.subheader("📊 Comparison")
 
     st.bar_chart(df_results.T)
 
-    # =========================
-    # FEATURE INSIGHT (ONLY QUICK MODE)
-    # =========================
     if mode == "⚡ Quick Analysis":
-        st.subheader("🧠 Feature Importance (Top Factors)")
+        st.subheader("🧠 Feature Importance")
         st.write(feature_importance.sort_values(ascending=False))
