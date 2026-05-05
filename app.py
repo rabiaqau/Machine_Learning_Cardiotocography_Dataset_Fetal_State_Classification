@@ -18,7 +18,7 @@ input_data = {}
 for feature in feature_names:
     input_data[feature] = st.number_input(feature, value=0.0)
 
-#input_df = pd.DataFrame([input_data])[feature_names]
+
 input_df = pd.DataFrame([[input_data[f] for f in feature_names]],
                         columns=feature_names)
 if st.button("Predict"):
