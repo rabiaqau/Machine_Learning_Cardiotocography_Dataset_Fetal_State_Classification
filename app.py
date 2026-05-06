@@ -3,6 +3,7 @@ import pandas as pd
 import joblib
 import base64
 import numpy as np
+import matplotlib.pyplot as plt
 
 # --- 1. HELPER FUNCTIONS ---
 def get_base64_of_bin_file(bin_file):
@@ -22,37 +23,46 @@ def set_png_as_page_bg(bin_file):
             background-attachment: fixed;
         }}
         
-        /* Full-width Banner for Title - Matches Screenshot 15.23.15 */
+        /* Full-width Banner Style */
         .banner {{
-            background-color: rgba(160, 120, 50, 0.85); 
+            background-color: rgba(160, 120, 50, 0.9); 
             width: 100%;
-            padding: 25px 0;
+            padding: 20px 0;
             text-align: center;
+            margin-top: 10px;
             margin-bottom: 20px;
-            border-radius: 5px;
+            border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }}
         
-        .banner h1 {{
+        .banner h1, .banner h2 {{
             color: white !important;
             font-family: 'Arial Black', Gadget, sans-serif;
-            font-size: 2.2rem;
             margin: 0;
             text-transform: uppercase;
             letter-spacing: 2px;
         }}
 
-        /* Transparent container for content readability */
+        /* Results Box - Solid White to prevent mixing with background */
+        .results-container {{
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #a07832;
+            margin-top: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }}
+
+        /* Main Content Glass-morphism Area */
         .main .block-container {{
-            background-color: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(5px);
             padding: 40px;
             border-radius: 20px;
             margin-top: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }}
 
-        /* Centered Square Button - Matches Screenshot 15.23.15 */
+        /* Centered Styled Button */
         div.stButton > button {{
             background-color: #a07832 !important;
             color: white !important;
@@ -60,17 +70,9 @@ def set_png_as_page_bg(bin_file):
             font-size: 1.1rem !important;
             padding: 15px 50px !important;
             border-radius: 4px !important;
-            border: 2px solid #8a6628 !important;
             display: block;
             margin: 0 auto;
             text-transform: uppercase;
-            transition: 0.3s;
-        }}
-
-        div.stButton > button:hover {{
-            background-color: #8a6628 !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            transform: translateY(-2px);
         }}
 
         [data-testid="stSidebar"] {{
@@ -80,7 +82,7 @@ def set_png_as_page_bg(bin_file):
         '''
         st.markdown(page_bg_img, unsafe_allow_html=True)
     except FileNotFoundError:
-        st.sidebar.warning("Background image not found.")
+        pass
 
 # --- 2. INITIALIZE ASSETS ---
 set_png_as_page_bg('mother_baby_image.png')
@@ -96,8 +98,7 @@ model, scaler = load_assets()
 # --- 3. SIDEBAR FEATURES ---
 def user_input_features():
     st.sidebar.header("📊 Clinical Parameters")
-    
-    # 21 Required Features
+    # Features remain same for model compatibility
     lb = st.sidebar.slider('Fetal Heart Rate Baseline (LB)', 100, 165, 133)
     ac = st.sidebar.slider('Accelerations (AC)', 0.0, 0.02, 0.003, format="%.3f")
     fm = st.sidebar.slider('Fetal Movement (FM)', 0.0, 0.5, 0.01, format="%.3f")
@@ -137,33 +138,41 @@ def user_input_features():
 input_df = user_input_features()
 
 # --- 4. MAIN UI CONTENT ---
-st.markdown("""
-    <div class="banner">
-        <h1>🛡️ FETAL HEALTH SUPPORT SYSTEM</h1>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown('<div class="banner"><h1>🛡️ FETAL HEALTH SUPPORT SYSTEM</h1></div>', unsafe_allow_html=True)
 
-st.markdown("<p style='text-align: center; color: #555; font-style: italic; margin-bottom: 25px;'>Advanced Diagnostic Analytics Portal</p>", unsafe_allow_html=True)
-
-# 5. DIAGNOSTIC ACTION
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     if st.button("GENERATE ASSESSMENT"):
         scaled_input = scaler.transform(input_df)
         prediction = model.predict(scaled_input)[0]
+        probabilities = model.predict_proba(scaled_input)[0]
+        
+        # Results wrapped in a White Box
+        st.markdown('<div class="results-container">', unsafe_allow_html=True)
         
         status_map = {1: "NORMAL", 2: "SUSPECT", 3: "PATHOLOGIC"}
         result = status_map.get(prediction)
         
-        st.markdown("<br>", unsafe_allow_html=True)
         if prediction == 1:
             st.success(f"### DIAGNOSIS: {result}")
         elif prediction == 2:
             st.warning(f"### DIAGNOSIS: {result}")
         else:
             st.error(f"### DIAGNOSIS: {result}")
+            
+        # 5. PROBABILITY HISTOGRAM
+        st.write("#### Probability Distribution")
+        fig, ax = plt.subplots(figsize=(6, 3))
+        classes = ['Normal', 'Suspect', 'Pathologic']
+        colors = ['#28a745', '#ffc107', '#dc3545'] # Green, Yellow, Red
+        
+        ax.bar(classes, probabilities, color=colors)
+        ax.set_ylim(0, 1)
+        ax.set_ylabel('Probability')
+        st.pyplot(fig)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
-# 6. DATA OVERVIEW
-st.divider()
-st.subheader("📋 Current Input Vector")
+# --- 6. DATA OVERVIEW ---
+st.markdown('<br><div class="banner"><h2>📋 CURRENT INPUT VECTOR</h2></div>', unsafe_allow_html=True)
 st.dataframe(input_df, use_container_width=True)
