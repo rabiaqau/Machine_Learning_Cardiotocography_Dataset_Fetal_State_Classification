@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 import joblib
 import base64
+import numpy as np
 
-# 1. HELPER FUNCTIONS (Must be at the top)
+# --- 1. HELPER FUNCTIONS ---
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
@@ -20,29 +21,70 @@ def set_png_as_page_bg(bin_file):
             background-position: center;
             background-attachment: fixed;
         }}
+        
+        /* Full-width Banner for Title - Matches Screenshot 15.23.15 */
+        .banner {{
+            background-color: rgba(160, 120, 50, 0.85); 
+            width: 100%;
+            padding: 25px 0;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }}
+        
+        .banner h1 {{
+            color: white !important;
+            font-family: 'Arial Black', Gadget, sans-serif;
+            font-size: 2.2rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }}
+
+        /* Transparent container for content readability */
         .main .block-container {{
-            background-color: rgba(255, 255, 255, 0.94); 
-            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(8px);
             padding: 40px;
             border-radius: 20px;
-            margin-top: 50px;
+            margin-top: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }}
+
+        /* Centered Square Button - Matches Screenshot 15.23.15 */
+        div.stButton > button {{
+            background-color: #a07832 !important;
+            color: white !important;
+            font-weight: bold !important;
+            font-size: 1.1rem !important;
+            padding: 15px 50px !important;
+            border-radius: 4px !important;
+            border: 2px solid #8a6628 !important;
+            display: block;
+            margin: 0 auto;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }}
+
+        div.stButton > button:hover {{
+            background-color: #8a6628 !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transform: translateY(-2px);
+        }}
+
         [data-testid="stSidebar"] {{
             background-color: rgba(248, 249, 250, 0.98);
         }}
-        .main-title {{ color: #1e3d59; text-align: center; font-weight: 800; font-size: 2.5rem; }}
-        .sub-title {{ color: #e4572e; text-align: center; font-size: 1.2rem; font-weight: 500; margin-bottom: 30px; }}
         </style>
         '''
         st.markdown(page_bg_img, unsafe_allow_html=True)
     except FileNotFoundError:
-        pass
+        st.sidebar.warning("Background image not found.")
 
-# 2. INITIALIZE BACKGROUND
+# --- 2. INITIALIZE ASSETS ---
 set_png_as_page_bg('mother_baby_image.png')
 
-# 3. LOAD ASSETS
 @st.cache_resource
 def load_assets():
     model = joblib.load('rf_best_model.pkl')
@@ -51,11 +93,11 @@ def load_assets():
 
 model, scaler = load_assets()
 
-# 4. SIDEBAR INPUT FUNCTION (This is what generates the features)
+# --- 3. SIDEBAR FEATURES ---
 def user_input_features():
     st.sidebar.header("📊 Clinical Parameters")
     
-    # We use sliders here to define the 21 features required
+    # 21 Required Features
     lb = st.sidebar.slider('Fetal Heart Rate Baseline (LB)', 100, 165, 133)
     ac = st.sidebar.slider('Accelerations (AC)', 0.0, 0.02, 0.003, format="%.3f")
     fm = st.sidebar.slider('Fetal Movement (FM)', 0.0, 0.5, 0.01, format="%.3f")
@@ -92,26 +134,36 @@ def user_input_features():
     
     return pd.DataFrame(data, index=[0])[feature_names]
 
-# 5. CALL THE INPUT FUNCTION (Crucial step!)
 input_df = user_input_features()
 
-# 6. MAIN CONTENT UI
-st.markdown('<h1 class="main-title">🛡️ Fetal Health Clinical Support System</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Advanced Diagnostic Analytics Portal</p>', unsafe_allow_html=True)
+# --- 4. MAIN UI CONTENT ---
+st.markdown("""
+    <div class="banner">
+        <h1>🛡️ FETAL HEALTH SUPPORT SYSTEM</h1>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.info("The observed metrics are evaluated against a Random Forest model trained on the UCI Cardiotocography dataset.")
+st.markdown("<p style='text-align: center; color: #555; font-style: italic; margin-bottom: 25px;'>Advanced Diagnostic Analytics Portal</p>", unsafe_allow_html=True)
 
-# Display diagnosis
-if st.button("Run Diagnostic Assessment", use_container_width=True):
-    scaled_input = scaler.transform(input_df)
-    prediction = model.predict(scaled_input)[0]
-    
-    status_map = {1: "NORMAL", 2: "SUSPECT", 3: "PATHOLOGIC"}
-    result = status_map.get(prediction)
-    
-    if prediction == 1:
-        st.success(f"### CLASSIFICATION: {result}")
-    elif prediction == 2:
-        st.warning(f"### CLASSIFICATION: {result}")
-    else:
-        st.error(f"### CLASSIFICATION: {result}")
+# 5. DIAGNOSTIC ACTION
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("GENERATE ASSESSMENT"):
+        scaled_input = scaler.transform(input_df)
+        prediction = model.predict(scaled_input)[0]
+        
+        status_map = {1: "NORMAL", 2: "SUSPECT", 3: "PATHOLOGIC"}
+        result = status_map.get(prediction)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        if prediction == 1:
+            st.success(f"### DIAGNOSIS: {result}")
+        elif prediction == 2:
+            st.warning(f"### DIAGNOSIS: {result}")
+        else:
+            st.error(f"### DIAGNOSIS: {result}")
+
+# 6. DATA OVERVIEW
+st.divider()
+st.subheader("📋 Current Input Vector")
+st.dataframe(input_df, use_container_width=True)
